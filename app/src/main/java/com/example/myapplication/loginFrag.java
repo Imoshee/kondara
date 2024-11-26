@@ -16,12 +16,13 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 
 public class loginFrag extends Fragment {
 
 private TextInputEditText textUser,textPassword;
-private Button btnlogin;
+private Button btnlogin,btnSignUp;
 private FirebaseAuth mAuth;
 
     public loginFrag() {
@@ -39,6 +40,19 @@ private FirebaseAuth mAuth;
         textUser = view.findViewById(R.id.etName);
         textPassword=view.findViewById(R.id.password);
         btnlogin=view.findViewById(R.id.button);
+        btnSignUp=view.findViewById(R.id.signUp22);
+        btnSignUp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                   MainActivity.homeFrame.setVisibility(View.INVISIBLE);
+                MainActivity.dashFrame.setVisibility(View.INVISIBLE);
+                MainActivity.loginFrame.setVisibility(View.INVISIBLE);
+                MainActivity. signUpFrame.setVisibility(View.VISIBLE);
+
+
+                }
+        });
         btnlogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -76,8 +90,21 @@ checkEmailPassword();
 }
 
 public void uptadeUi(){
+        textUser.setText(null);
+        textPassword.setText(null);
+        MainActivity.isLogin=true;
         MainActivity.loginFrame.setVisibility(View.INVISIBLE);
         MainActivity.homeFrame.setVisibility(View.VISIBLE);
         MainActivity.dashFrame.setVisibility(View.INVISIBLE);
 }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if(currentUser != null){
+            uptadeUi();
+        }
+
+    }
 }
