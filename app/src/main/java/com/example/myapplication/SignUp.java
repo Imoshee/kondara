@@ -110,7 +110,12 @@ private Button btnSignUp;
 
     private void addUserDataToFirebase() {
         com.example.myapplication.User user=new User(name.getText().toString(),phone.getText().toString(),email.getText().toString(),userName.getText().toString());
-        db.collection("users").add(user);
+        db.collection("users").document(user.getMail()).set(user);
+        name.setText(null);
+        phone.setText(null);
+        email.setText(null);
+        password.setText(null);
+        conpassword.setText(null);
 
     }
 
