@@ -3,11 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/green"
+    android:background="@drawable/gym"
     tools:context=".HomeFrag">
 <com.google.android.material.floatingactionbutton.FloatingActionButton
-    android:layout_width="50dp"
-    android:layout_height="50dp"
+    android:layout_width="60dp"
+    android:layout_height="60dp"
     android:id="@+id/btnLogout"
     android:layout_gravity="bottom|right"
     android:layout_marginEnd="15dp"
@@ -26,7 +26,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="50sp"
-        android:text="Home Fragment"
+        android:text="DEBO FITNESS"
+        android:fontFamily="sans-serif-thin"
+        android:textColor="@color/black"
         android:layout_gravity="center" >
 
     </TextView>

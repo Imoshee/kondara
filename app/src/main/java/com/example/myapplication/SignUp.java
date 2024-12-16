@@ -18,7 +18,6 @@ import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 
@@ -28,7 +27,8 @@ public class SignUp extends Fragment {
 private TextInputEditText name,phone,email,password,conpassword,userName;
 private FirebaseAuth mAuth;
 private FirebaseFirestore db;
-private Button btnSignUp;
+private Button btnSignUp,btnClear;
+
     public SignUp() {
 
     }
@@ -44,28 +44,43 @@ private Button btnSignUp;
         userName=view.findViewById(R.id.etName);
         phone=view.findViewById(R.id.phone);
         email=view.findViewById(R.id.email);
+        btnClear=view.findViewById(R.id.clear);
         password=view.findViewById(R.id.password);
         conpassword=view.findViewById(R.id.conpassword);
         btnSignUp=view.findViewById(R.id.button);
         mAuth=FirebaseAuth.getInstance();
         db=FirebaseFirestore.getInstance();
+        btnClear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                userName.setText(null);
+                name.setText(null);
+                phone.setText(null);
+                email.setText(null);
+                password.setText(null);
+                conpassword.setText(null);
+
+
+            }
+                                    });
+
+
+
         btnSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 checkForm();
-
-
             }
         });
-
-
         return view;
     }
+
+    //check if all fields are filled and valid and add user to firebase
     private void checkForm(){
-        if(!(email.getText().toString().isEmpty() || name.getText().toString().isEmpty() || phone.getText().toString().isEmpty() || password.getText().toString().isEmpty() || conpassword.getText().toString().isEmpty())) {
+        if(checkFields()) {
 
 
-                if (name.getText().toString().length() >= 4 && checkname()) {
+                if ( checkname()) {
 
                     if (checkphone()) {
 
@@ -76,10 +91,7 @@ private Button btnSignUp;
 
 
                             if (password.getText().toString().equals(conpassword.getText().toString())) {
-                                String mail=email.getText().toString();
-                                String pass=password.getText().toString();
-                                registerNewUser(mail,pass);
-
+                                registerNewUser(email.getText().toString(),password.getText().toString());
                                 Toast.makeText(getActivity(), "Sign Up Successfull", Toast.LENGTH_SHORT).show();
                                 addUserDataToFirebase();
                                 MainActivity.homeFrame.setVisibility(View.INVISIBLE);
@@ -90,24 +102,26 @@ private Button btnSignUp;
 
 
                             } else
-                                Toast.makeText(getActivity(), "Passwords not match", Toast.LENGTH_SHORT).show();
+                                conpassword.setError("Password does not match");
 
                         } else
-                            Toast.makeText(getActivity(), "Password must be at least 6 characters and contain  letter,number,capital letter", Toast.LENGTH_SHORT).show();
+                           password.setError("Password must be at least 6 characters and contain at least one capital letter, one small letter and one number");
 
                     } else
-                        Toast.makeText(getActivity(), "Invalid Email", Toast.LENGTH_SHORT).show();
+                        email.setError("Invalid Email");
                 }else
-                        Toast.makeText(getActivity(), "Invalid Phone Number", Toast.LENGTH_SHORT).show();
+                        phone.setError("Invalid Phone Number");
 
             }
                 else
-                    Toast.makeText(getActivity(), "Name must be at least 5 characters and contain only letters", Toast.LENGTH_SHORT).show();
+                    name.setError("Name must be at least 3 characters and contain only letters");
+
         }
         else
             Toast.makeText(getActivity(), "Please fill all fields", Toast.LENGTH_SHORT).show();
     }
 
+    //add user data to firebase
     private void addUserDataToFirebase() {
         com.example.myapplication.User user=new User(name.getText().toString(),phone.getText().toString(),email.getText().toString(),userName.getText().toString());
         db.collection("users").document(user.getMail()).set(user);
@@ -116,17 +130,23 @@ private Button btnSignUp;
         email.setText(null);
         password.setText(null);
         conpassword.setText(null);
+        userName.setText(null);
 
     }
 
+//check if name is valid(at least 3 characters and contain only letters)
     private boolean checkname(){
         char [] nameArray=name.getText().toString().toCharArray();
         boolean flag=true;
+       if (name.getText().toString().length() <3)
+           return false;
         for(int i=0;i<nameArray.length;i++){
             if(!Character.isLetter(nameArray[i]) )
                 flag=false;}
         return flag;
 }
+
+    //check if phone number is valid(10 digits)
     private boolean checkphone(){
         char [] phoneArray=phone.getText().toString().toCharArray();
         boolean flag=true;
@@ -138,9 +158,13 @@ private Button btnSignUp;
             return flag;
 
     }
+
+    //check if email is valid
     private boolean checkemail(){
       return Patterns.EMAIL_ADDRESS.matcher(email.getText().toString()).matches();
     }
+
+    //check if password is valid(at least 6 characters and contain at least one capital letter, one small letter and one number)
     private boolean checkpassword(){
         boolean flag=false;
         char [] passwordArray=password.getText().toString().toCharArray();
@@ -166,9 +190,20 @@ private Button btnSignUp;
 
 
     }
-    private void registerNewUser(String email, String password) {
-        mAuth.createUserWithEmailAndPassword(email, password);
 
+    //check if all fields are filled(not empty)
+    public boolean checkFields(){
+        return !(email.getText().toString().isEmpty() || name.getText().toString().isEmpty() || phone.getText().toString().isEmpty() || password.getText().toString().isEmpty() || conpassword.getText().toString().isEmpty());
+    }
+
+    //add user to firebase
+    private void registerNewUser(String email, String password) {
+        mAuth.createUserWithEmailAndPassword(email,password).addOnCompleteListener(getActivity(),task -> {
+            if (!task.isSuccessful()) {
+                Toast.makeText(getActivity(), "Sign Up failed", Toast.LENGTH_SHORT).show();
+
+            }
+        });
 
 
     }
